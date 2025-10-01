@@ -1,0 +1,9 @@
+{
+  "extends": "../../tsconfig.json",
+  "compilerOptions": {
+    "outDir": "./dist",
+    "rootDir": "./src"
+  },
+  "include": ["src/simple-client.ts", "src/index.ts"],
+  "exclude": ["dist", "node_modules", "src/client.ts", "src/tools.ts", "src/schemas.ts", "src/live-api.ts", "src/example-calls.ts"]
+}

@@ -1,0 +1,478 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+generator client {
+  provider        = "prisma-client-js"
+  previewFeatures = ["postgresqlExtensions"]
+}
+
+datasource db {
+  provider   = "postgresql"
+  url        = env("DATABASE_URL")
+  // extensions = [vector] // Temporarily disabled - will add back after pgvector setup
+}
+
+model User {
+  id        String   @id @default(cuid())
+  email     String   @unique
+  name      String?
+  image     String?
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  // User preferences and settings
+  preferences UserPreferences?
+
+  // OAuth tokens
+  oauthTokens OAuthToken[]
+
+  // User's Gemini API key (encrypted)
+  geminiApiKey String?
+
+  // Email threads and messages
+  threads Thread[]
+
+  // Chat sessions and conversations
+  chatSessions ChatSession[]
+
+  // Automations
+  automations Automation[]
+
+  // Tasks
+  tasks Task[]
+
+  // Notifications
+  notifications Notification[]
+
+  // Audit logs
+  auditLogs AuditLog[]
+
+  // Calendar watch channels
+  calendarWatchChannels CalendarWatchChannel[]
+
+  // Calendar events
+  events Event[]
+
+  // Personality system
+  personalityMemories PersonalityMemory[]
+  personalityVectors PersonalityVector[]
+  personalityInteractions PersonalityInteraction[]
+  
+  // Enhanced memory system
+  memorySummaries MemorySummary[]
+  memoryAccesses MemoryAccess[]
+
+  @@map("users")
+}
+
+model OAuthToken {
+  id           String    @id @default(cuid())
+  userId       String
+  provider     String    // 'google'
+  accessToken  String    // Encrypted
+  refreshToken String?   // Encrypted
+  expiresAt    DateTime?
+  scope        String[]
+  createdAt    DateTime  @default(now())
+  updatedAt    DateTime  @updatedAt
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([userId, provider])
+  @@map("oauth_tokens")
+}
+
+model CalendarWatchChannel {
+  id           String    @id @default(cuid())
+  channelId    String    @unique // X-Goog-Channel-ID
+  resourceId   String? // X-Goog-Resource-ID
+  syncToken    String?
+  expiration   DateTime?
+  userId       String
+  calendarId   String
+  channelToken String? // X-Goog-Channel-Token (my secret)
+  createdAt    DateTime  @default(now())
+  updatedAt    DateTime  @updatedAt
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId, calendarId])
+  @@map("calendar_watch_channels")
+}
+
+model Event {
+  id          String   @id @default(cuid())
+  userId      String
+  calendarId  String
+  googleId    String   @unique
+  summary     String
+  description String?
+  start       DateTime
+  end         DateTime
+  location    String?
+  status      String // confirmed, tentative, cancelled
+  recurringId String?
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId, start])
+  @@map("events")
+}
+
+model Thread {
+  id          String   @id @default(cuid())
+  userId      String
+  gmailId     String   @unique // Gmail thread ID
+  subject     String
+  snippet     String?
+  historyId   String?  // For Gmail incremental sync
+  lastMessage DateTime
+  unread      Boolean  @default(true)
+  priority    Priority @default(P3)
+  labels      String[] // Gmail labels
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  user     User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+  messages Message[]
+
+  // Automations targeting this thread
+  automations Automation[]
+
+  @@index([userId, lastMessage])
+  @@index([userId, unread])
+  @@map("threads")
+}
+
+model Message {
+  id        String   @id @default(cuid())
+  threadId  String
+  gmailId   String   @unique // Gmail message ID
+  from      String
+  to        String[]
+  cc        String[]
+  bcc       String[]
+  subject   String
+  body      String
+  bodyHtml  String?
+  date      DateTime
+  inReplyTo String?
+  createdAt DateTime @default(now())
+
+  thread     Thread      @relation(fields: [threadId], references: [id], onDelete: Cascade)
+  embeddings Embedding[]
+
+  @@index([threadId, date])
+  @@map("messages")
+}
+
+model Embedding {
+  id        String                     @id @default(cuid())
+  messageId String
+  content   String
+  // vector    Unsupported("vector(1536)") // Temporarily disabled - will add back after pgvector setup
+  createdAt DateTime                   @default(now())
+
+  message Message @relation(fields: [messageId], references: [id], onDelete: Cascade)
+
+  // @@index([vector], map: "embeddings_vector_idx") // Temporarily disabled
+  @@map("embeddings")
+}
+
+model Automation {
+  id          String          @id @default(cuid())
+  userId      String
+  threadId    String?         // Optional: automation for specific thread
+  name        String
+  description String?
+  type        AutomationType
+  config      Json            // Automation-specific configuration
+  isActive    Boolean         @default(true)
+  createdAt   DateTime        @default(now())
+  updatedAt   DateTime        @updatedAt
+
+  user   User    @relation(fields: [userId], references: [id], onDelete: Cascade)
+  thread Thread? @relation(fields: [threadId], references: [id], onDelete: Cascade)
+  tasks  Task[]
+
+  @@index([userId, isActive])
+  @@map("automations")
+}
+
+model Task {
+  id           String     @id @default(cuid())
+  userId       String
+  automationId String?    // Optional: task created by automation
+  type         TaskType
+  title        String
+  description  String?
+  status       TaskStatus @default(PENDING)
+  priority     Priority   @default(P3)
+  dueDate      DateTime?
+  completedAt  DateTime?
+  data         Json?      // Task-specific data
+  createdAt    DateTime   @default(now())
+  updatedAt    DateTime   @updatedAt
+
+  user       User        @relation(fields: [userId], references: [id], onDelete: Cascade)
+  automation Automation? @relation(fields: [automationId], references: [id], onDelete: SetNull)
+
+  @@index([userId, status])
+  @@index([userId, dueDate])
+  @@map("tasks")
+}
+
+model Notification {
+  id        String             @id @default(cuid())
+  userId    String
+  type      NotificationType
+  title     String
+  message   String
+  data      Json?              // Notification-specific data
+  read      Boolean            @default(false)
+  createdAt DateTime           @default(now())
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId, read])
+  @@index([userId, createdAt])
+  @@map("notifications")
+}
+
+model AuditLog {
+  id        String   @id @default(cuid())
+  userId    String
+  action    String   // e.g., 'email.send', 'calendar.create'
+  resource  String?  // Resource ID if applicable
+  metadata  Json?    // Additional context
+  ipAddress String?
+  userAgent String?
+  createdAt DateTime @default(now())
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId, createdAt])
+  @@index([action, createdAt])
+  @@map("audit_logs")
+}
+
+model UserPreferences {
+  id        String   @id @default(cuid())
+  userId    String   @unique
+  theme     String   @default("system") // 'light', 'dark', 'system'
+  language  String   @default("en")
+  timezone  String   @default("UTC")
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  // Personality settings
+  personalitySettings Json? // Store personality preferences as JSON
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@map("user_preferences")
+}
+
+model ChatSession {
+  id        String   @id @default(cuid())
+  userId    String
+  title     String?  // Auto-generated or user-set title
+  isActive  Boolean  @default(true)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  user     User              @relation(fields: [userId], references: [id], onDelete: Cascade)
+  messages ConversationMessage[]
+
+  @@index([userId, createdAt])
+  @@map("chat_sessions")
+}
+
+model ConversationMessage {
+  id          String   @id @default(cuid())
+  sessionId   String
+  role        MessageRole
+  content     String
+  metadata    Json?    // Function calls, tool usage, etc.
+  createdAt   DateTime @default(now())
+
+  // Enhanced memory optimization fields
+  tokenCount  Int?     // Calculated token count for this message
+  importance  Float?   // Importance score (0-1) for context selection
+  isSummarized Boolean @default(false) // Whether this message has been compressed
+  summary     String?  // Compressed version of the message
+  embedding   String?  // Vector embedding for semantic search (JSON string)
+  topics      String[] // Extracted topics for categorization
+  sentiment   Float?   // Sentiment score (-1 to 1)
+  
+  session ChatSession @relation(fields: [sessionId], references: [id], onDelete: Cascade)
+
+  @@index([sessionId, createdAt])
+  @@index([sessionId, importance, createdAt])
+  @@index([sessionId, isSummarized, createdAt])
+  @@index([topics])
+  @@map("conversation_messages")
+}
+
+enum MessageRole {
+  USER
+  ASSISTANT
+  SYSTEM
+  FUNCTION_CALL
+  FUNCTION_RESULT
+}
+
+enum Priority {
+  P0 // Critical
+  P1 // High
+  P2 // Medium
+  P3 // Low
+}
+
+enum AutomationType {
+  FOLLOW_UP_REMINDER
+  DAILY_DIGEST
+  OUT_OF_OFFICE
+  SMART_REPLY
+  CALENDAR_SCHEDULING
+}
+
+enum TaskType {
+  EMAIL_REPLY
+  CALENDAR_EVENT
+  FOLLOW_UP
+  REVIEW
+  CUSTOM
+}
+
+enum TaskStatus {
+  PENDING
+  IN_PROGRESS
+  COMPLETED
+  CANCELLED
+}
+
+enum NotificationType {
+  EMAIL_RECEIVED
+  TASK_DUE
+  AUTOMATION_TRIGGERED
+  CALENDAR_REMINDER
+  SYSTEM_ALERT
+}
+
+// Personality System Models
+model PersonalityMemory {
+  id        String   @id @default(cuid())
+  userId    String
+  type      PersonalityMemoryType
+  content String
+  metadata Json?    // Jokes used, user reactions, etc.
+  createdAt DateTime @default(now())
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId, type])
+  @@map("personality_memories")
+}
+
+model PersonalityVector {
+  id        String   @id @default(cuid())
+  userId    String
+  content   String
+  // vector    Unsupported("vector(1536)") // Will be enabled when pgvector is set up
+  metadata  Json
+  createdAt DateTime @default(now())
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  // @@index([vector], map: "personality_vector_idx") // Will be enabled when pgvector is set up
+  @@map("personality_vectors")
+}
+
+model PersonalityInteraction {
+  id        String   @id @default(cuid())
+  userId    String
+  sessionId String?  // Optional: link to chat session
+  type      PersonalityInteractionType
+  content   String
+  metadata  Json?    // Additional context
+  createdAt DateTime @default(now())
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId, createdAt])
+  @@map("personality_interactions")
+}
+
+enum PersonalityMemoryType {
+  JOKE_USED
+  USER_REACTION
+  PERSONALITY_ADJUSTMENT
+  CONTEXT_LEARNED
+  HUMOR_PREFERENCE
+  SARCASM_LEVEL
+}
+
+enum PersonalityInteractionType {
+  JOKE_RATING
+  PERSONALITY_FEEDBACK
+  HUMOR_PREFERENCE
+  SARCASM_FEEDBACK
+  PERSONALITY_ADJUSTMENT
+}
+
+// Enhanced Memory System Models
+model MemorySummary {
+  id          String   @id @default(cuid())
+  userId      String
+  sessionId   String?
+  type        MemorySummaryType
+  content     String
+  keyPoints   Json     // Structured key information
+  importance  Float
+  topics      String[] // Related topics
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId, type, importance])
+  @@index([userId, topics])
+  @@index([createdAt])
+  @@map("memory_summaries")
+}
+
+model MemoryAccess {
+  id          String   @id @default(cuid())
+  userId      String
+  messageId   String?
+  summaryId   String?
+  accessType  MemoryAccessType
+  relevance   Float    // How relevant this memory was to the query
+  createdAt   DateTime @default(now())
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId, accessType, createdAt])
+  @@index([relevance])
+  @@map("memory_accesses")
+}
+
+enum MemorySummaryType {
+  CONVERSATION_SUMMARY
+  TOPIC_SUMMARY
+  USER_PREFERENCE
+  DECISION_POINT
+  LEARNED_FACT
+  CONTEXT_BRIDGE
+}
+
+enum MemoryAccessType {
+  CONTEXT_RETRIEVAL
+  SEMANTIC_SEARCH
+  CROSS_SESSION_LEARNING
+  MEMORY_COMPRESSION
+  RELEVANCE_RANKING
+}

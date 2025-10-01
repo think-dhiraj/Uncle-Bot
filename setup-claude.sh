@@ -1,0 +1,20 @@
+#!/bin/bash
+
+echo "🔧 Setting up Gemini API for ADA AI Assistant"
+echo "=============================================="
+
+echo "✅ Gemini integration is ready!"
+echo ""
+echo "📋 To use Gemini 2.5 Pro:"
+echo "1. Get your API key from: https://aistudio.google.com/app/apikey"
+echo "2. Set the environment variable:"
+echo "   export GEMINI_API_KEY='your-api-key-here'"
+echo "3. Or add it to the code directly"
+echo ""
+echo "🚀 Start the server:"
+echo "   cd apps/api && npx tsx src/simple-server.ts"
+echo ""
+echo "🧪 Test your setup with:"
+echo "   curl -X POST 'http://localhost:3001/chat/send' \\"
+echo "     -H 'Content-Type: application/json' \\"
+echo "     -d '{\"message\": \"Hello Gemini!\"}'"

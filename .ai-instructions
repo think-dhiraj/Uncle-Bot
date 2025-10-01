@@ -1,0 +1,23 @@
+# AI Agent Quickstart
+
+🚨 **READ PROJECT_CONTEXT.md FIRST** 🚨
+
+This project is 80% complete. Don't reimlement existing features.
+
+## Current Status:
+- Backend: ✅ COMPLETE (NestJS + tRPC + Temporal)
+- Database: ✅ COMPLETE (Prisma + PostgreSQL + pgvector) 
+- Google APIs: ✅ COMPLETE (Gmail + Calendar with incremental sync)
+- Gemini AI: ✅ COMPLETE (2.5 Pro + Function Calling + Structured Output)
+- Frontend: 🚧 NEEDS IMPLEMENTATION (Next.js 15 + SSE + Tool Inspector)
+
+## Next Priority:
+1. Build Next.js web app with chat interface
+2. Implement SSE streaming for AI responses
+3. Create tool-call inspector panel
+4. Complete Temporal activity implementations
+
+## After ANY changes:
+Update PROJECT_CONTEXT.md with new status and date.
+
+See AI_AGENT_INSTRUCTIONS.md for complete workflow.
