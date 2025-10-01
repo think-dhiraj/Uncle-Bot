@@ -61,10 +61,9 @@ export class DevUserService {
       
       if (!hasApiKey.hasApiKey) {
         // Set a dev API key (in real development, this would be a valid test key)
-        await this.userApiKeyService.createApiKey(
+        await this.userApiKeyService.storeApiKey(
           this.DEV_USER_ID,
-          this.DEV_API_KEY,
-          'Dev API Key for testing'
+          this.DEV_API_KEY
         );
         
         console.log('✅ Dev user API key set successfully');

@@ -149,14 +149,20 @@ temporal server start-dev
 ```
 
 ### 6. Start Development Servers
+
+> ✅ **UPDATE**: The tRPC version mismatch has been fixed! The full stack now works perfectly.
+
 ```bash
-# Start all services
+# Start all services (recommended)
 pnpm dev
 
 # Or start individually
 pnpm --filter web dev          # Frontend on :3000
 pnpm --filter api dev          # API on :3001  
 pnpm --filter worker dev       # Temporal worker
+
+# Alternative: Simple API server (lightweight, limited functionality)
+cd apps/api && npx tsx src/simple-server.ts  # Simple API on :3001
 ```
 
 ## 🔧 Configuration
@@ -482,8 +488,14 @@ open http://localhost:8233
 
 **⚠️ CRITICAL: READ FIRST**
 
-Before working on this project, **ALWAYS** read `PROJECT_CONTEXT.md` first. This file contains:
+Before working on this project, **ALWAYS** read these files in order:
+1. `CURRENT_STATUS.md` - Current state, issues, and immediate fixes needed
+2. `PROJECT_CONTEXT.md` - Architecture, implementation status, and design decisions
+3. `TODO.md` - Detailed task list with 570+ specific tasks
+
+These files contain:
 - Complete implementation status
+- Known issues and blockers
 - Architecture decisions
 - What's done vs. what's pending
 - Critical configuration details
@@ -492,10 +504,11 @@ Before working on this project, **ALWAYS** read `PROJECT_CONTEXT.md` first. This
 **🔄 KEEP CONTEXT UPDATED**
 
 After making ANY significant changes:
-1. Update `PROJECT_CONTEXT.md` with new implementation status
-2. Update the "Last Updated" date
-3. Modify the "Next Steps Priority" section
-4. Document any new architecture decisions
+1. Update `CURRENT_STATUS.md` with current state and any new issues
+2. Update `PROJECT_CONTEXT.md` with new implementation status
+3. Update the "Last Updated" dates
+4. Modify the "Next Steps Priority" sections
+5. Document any new architecture decisions
 
 This ensures every new AI agent or developer has complete, current project knowledge.
 

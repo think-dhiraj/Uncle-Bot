@@ -23,5 +23,5 @@
     }
   },
   "include": ["src/**/*"],
-  "exclude": ["node_modules", "dist", "src/gmail/**/*", "src/google-calendar/**/*", "src/webhooks/**/*", "src/trpc/routers/**/*"]
+  "exclude": ["node_modules", "dist", "src/gmail/**/*", "src/google-calendar/**/*", "src/webhooks/**/*", "src/trpc/routers/**/*", "src/**/*.js"]
 }
