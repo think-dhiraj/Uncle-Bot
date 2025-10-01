@@ -1,14 +1,6 @@
 import { Injectable, NotFoundException, BadRequestException } from '@nestjs/common';
 import { DatabaseService } from '../database/database.service';
-// import { PersonalityInteractionType } from 'db';
-
-export enum PersonalityInteractionType {
-  JOKE_RATING = 'JOKE_RATING',
-  PERSONALITY_FEEDBACK = 'PERSONALITY_FEEDBACK',
-  HUMOR_PREFERENCE = 'HUMOR_PREFERENCE',
-  SARCASM_FEEDBACK = 'SARCASM_FEEDBACK',
-  PERSONALITY_ADJUSTMENT = 'PERSONALITY_ADJUSTMENT',
-}
+import { PersonalityInteractionType } from 'db';
 
 export interface PersonalityInteractionData {
   userId: string;

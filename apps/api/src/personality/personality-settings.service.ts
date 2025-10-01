@@ -66,10 +66,11 @@ export class PersonalitySettingsService {
     } as any);
 
     // Track the personality adjustment
-    await this.personalityService.trackPersonalityAdjustment(
+    await this.personalityService.trackPersonalityInteraction(
       userId,
+      'PERSONALITY_ADJUSTMENT',
       `Updated personality settings: ${JSON.stringify(updates)}`,
-      'User preference change'
+      { type: 'User preference change' }
     );
 
     return {
@@ -90,10 +91,11 @@ export class PersonalitySettingsService {
     } as any);
 
     // Track the reset
-    await this.personalityService.trackPersonalityAdjustment(
+    await this.personalityService.trackPersonalityInteraction(
       userId,
+      'PERSONALITY_ADJUSTMENT',
       'Reset personality settings to defaults',
-      'User preference reset'
+      { type: 'User preference reset' }
     );
 
     return {
