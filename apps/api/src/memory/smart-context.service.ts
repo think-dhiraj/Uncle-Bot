@@ -216,21 +216,25 @@ export class SmartContextService {
   }
 
   /**
-   * Update message importance scores
+   * Update message importance scores for a session
    */
-  async updateMessageImportance(messageId: string): Promise<void> {
-    const message = await this.databaseService.conversationMessage.findUnique({
-      where: { id: messageId }
+  async updateMessageImportance(sessionId: string): Promise<void> {
+    // Get all messages in the session
+    const messages = await this.databaseService.conversationMessage.findMany({
+      where: { sessionId },
+      orderBy: { createdAt: 'asc' }
     });
 
-    if (message) {
+    // Update importance and token count for each message
+    for (const message of messages) {
       const importance = await this.calculateMessageImportance(message);
+      const tokenCount = this.estimateTokenCount(message.content);
       
       await this.databaseService.conversationMessage.update({
-        where: { id: messageId },
+        where: { id: message.id },
         data: { 
           importance,
-          tokenCount: this.estimateTokenCount(message.content)
+          tokenCount
         }
       });
     }

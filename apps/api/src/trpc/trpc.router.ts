@@ -515,7 +515,6 @@ export class TrpcRouter {
         .query(({ ctx }) => 
           this.personalitySettingsService.getPersonalityAnalytics(ctx.user.id)
         ),
-         }),
     }),
 
     // Memory Management routes

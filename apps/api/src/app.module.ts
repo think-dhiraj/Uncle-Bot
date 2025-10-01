@@ -8,6 +8,7 @@ import { AuthModule } from './auth/auth.module';
 // import { GmailModule } from './gmail/gmail.module';
 import { KmsModule } from './kms/kms.module';
 import { DatabaseModule } from './database/database.module';
+import { DevModule } from './dev/dev.module';
 import { HealthController } from './health/health.controller';
 
 @Module({
@@ -19,6 +20,7 @@ import { HealthController } from './health/health.controller';
     DatabaseModule,
     KmsModule,
     AuthModule,
+    DevModule,
     // GmailModule,
     TrpcModule,
     // WebhooksModule,

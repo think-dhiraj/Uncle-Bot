@@ -106,6 +106,14 @@ export class ChatService {
       // Get user's API key
       const userApiKey = await this.userApiKeyService.getApiKey(userId);
       if (!userApiKey) {
+        // For dev users, provide a helpful error message
+        if (userId === 'dev-user-123') {
+          throw new TRPCError({
+            code: 'BAD_REQUEST',
+            message: 'Dev user API key not found. Please ensure the dev user is properly initialized.',
+          });
+        }
+        
         throw new TRPCError({
           code: 'BAD_REQUEST',
           message: 'No Gemini API key found. Please set your API key in settings.',
