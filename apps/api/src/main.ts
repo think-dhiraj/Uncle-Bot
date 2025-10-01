@@ -1,10 +1,10 @@
 import { NestFactory } from '@nestjs/core';
 import { ValidationPipe } from '@nestjs/common';
 import { SwaggerModule, DocumentBuilder } from '@nestjs/swagger';
-import { AppMinimalModule } from './app-minimal.module';
+import { AppModule } from './app.module';
 
 async function bootstrap() {
-  const app = await NestFactory.create(AppMinimalModule);
+  const app = await NestFactory.create(AppModule);
 
   // Enable CORS
   app.enableCors({
