@@ -3,12 +3,7 @@ import { TRPCError } from '@trpc/server';
 import { DatabaseService } from '../../database/database.service';
 import { AuthService } from '../../auth/auth.service';
 import { GeminiFunctionHandlerService } from '../../gemini/gemini-function-handler.service';
-// Temporarily commented out due to build issues
-// import { 
-//   GeminiClient, 
-//   SCHEMA_CONFIGS,
-//   SlotCandidatesResult 
-// } from '@ai-assistant/gemini';
+// import { SimpleGeminiClient } from '../../../../packages/gemini/src/simple-client';
 
 @Injectable()
 export class CalendarService {
@@ -89,14 +84,11 @@ export class CalendarService {
       });
 
       // Use AI to analyze and rank the slots intelligently
-      const geminiClient = new GeminiClient({
-        projectId: process.env.GOOGLE_CLOUD_PROJECT!,
-        location: process.env.GEMINI_LOCATION || 'us-central1',
-        modelName: (process.env.GEMINI_MODEL as any) || 'gemini-2.5-pro',
-        apiKey: process.env.GEMINI_API_KEY,
-        defaultTemperature: 0.2, // Low temperature for consistent scheduling logic
-        defaultMaxTokens: 2048,
-      });
+      // TODO: Fix Gemini client import
+      // const geminiClient = new SimpleGeminiClient({
+      //   apiKey: process.env.GEMINI_API_KEY!,
+      //   model: (process.env.GEMINI_MODEL as any) || 'gemini-2.5-pro',
+      // });
 
       const analysisPrompt = `Analyze these available time slots and rank them by quality:
 
@@ -115,25 +107,10 @@ Rank the slots considering:
 
 Provide ranked candidates with scores and reasoning.`;
 
-      const analysisResponse = await geminiClient.callGemini({
-        messages: [
-          {
-            role: 'user',
-            parts: [{ text: analysisPrompt }],
-          },
-        ],
-        ...SCHEMA_CONFIGS.SLOT_CANDIDATES,
-        temperature: 0.2,
-      });
-
-      let structuredResult: SlotCandidatesResult | null = null;
-      if (analysisResponse.text) {
-        try {
-          structuredResult = JSON.parse(analysisResponse.text);
-        } catch (e) {
-          console.error('Failed to parse slot analysis:', e);
-        }
-      }
+      // TODO: Re-enable AI analysis when Gemini client is fixed
+      // const analysisResponse = await geminiClient.callGemini({...});
+      
+      let structuredResult: any = null;
 
       // Log the scheduling request
       await this.databaseService.auditLog.create({

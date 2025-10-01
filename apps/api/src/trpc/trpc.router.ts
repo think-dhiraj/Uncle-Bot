@@ -426,7 +426,7 @@ export class TrpcRouter {
         ),
 
       // Update personality settings
-      updateSettings: this.trpc.protectedProcedure
+      updatePersonalitySettings: this.trpc.protectedProcedure
         .input(z.object({
           humorLevel: z.enum(['low', 'medium', 'high']).optional(),
           sarcasmLevel: z.enum(['low', 'medium', 'high']).optional(),
@@ -511,7 +511,7 @@ export class TrpcRouter {
           this.personalitySettingsService.applyPersonalityPreset(ctx.user.id, input.presetName)
         ),
 
-           getAnalytics: this.trpc.protectedProcedure
+           getPersonalityAnalytics: this.trpc.protectedProcedure
              .query(({ ctx }) => 
                this.personalitySettingsService.getPersonalityAnalytics(ctx.user.id)
              ),
