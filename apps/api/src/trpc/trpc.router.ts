@@ -511,64 +511,65 @@ export class TrpcRouter {
           this.personalitySettingsService.applyPersonalityPreset(ctx.user.id, input.presetName)
         ),
 
-           getPersonalityAnalytics: this.trpc.protectedProcedure
-             .query(({ ctx }) => 
-               this.personalitySettingsService.getPersonalityAnalytics(ctx.user.id)
-             ),
+      getPersonalityAnalytics: this.trpc.protectedProcedure
+        .query(({ ctx }) => 
+          this.personalitySettingsService.getPersonalityAnalytics(ctx.user.id)
+        ),
          }),
+    }),
 
-         // Memory Management routes
-         memory: this.trpc.trpc.router({
-           // Get memory insights
-           getInsights: this.trpc.protectedProcedure
-             .query(({ ctx }) => 
-               this.memoryAnalyticsService.getMemoryInsights(ctx.user.id)
-             ),
+    // Memory Management routes
+    memory: this.trpc.trpc.router({
+      // Get memory insights
+      getInsights: this.trpc.protectedProcedure
+        .query(({ ctx }) => 
+          this.memoryAnalyticsService.getMemoryInsights(ctx.user.id)
+        ),
 
-           // Get memory optimization recommendations
-           getOptimization: this.trpc.protectedProcedure
-             .query(({ ctx }) => 
-               this.memoryAnalyticsService.getMemoryOptimization(ctx.user.id)
-             ),
+      // Get memory optimization recommendations
+      getOptimization: this.trpc.protectedProcedure
+        .query(({ ctx }) => 
+          this.memoryAnalyticsService.getMemoryOptimization(ctx.user.id)
+        ),
 
-           // Compress session messages
-           compressSession: this.trpc.protectedProcedure
-             .input(z.object({ sessionId: z.string() }))
-             .mutation(({ ctx, input }) => 
-               this.memoryCompressionService.compressSessionMessages(input.sessionId)
-             ),
+      // Compress session messages
+      compressSession: this.trpc.protectedProcedure
+        .input(z.object({ sessionId: z.string() }))
+        .mutation(({ ctx, input }) => 
+          this.memoryCompressionService.compressSessionMessages(input.sessionId)
+        ),
 
-           // Compress user's old memories
-           compressUserMemories: this.trpc.protectedProcedure
-             .mutation(({ ctx }) => 
-               this.memoryCompressionService.compressUserMemories(ctx.user.id)
-             ),
+      // Compress user's old memories
+      compressUserMemories: this.trpc.protectedProcedure
+        .mutation(({ ctx }) => 
+          this.memoryCompressionService.compressUserMemories(ctx.user.id)
+        ),
 
-           // Get compression statistics
-           getCompressionStats: this.trpc.protectedProcedure
-             .query(({ ctx }) => 
-               this.memoryCompressionService.getCompressionStats(ctx.user.id)
-             ),
+      // Get compression statistics
+      getCompressionStats: this.trpc.protectedProcedure
+        .query(({ ctx }) => 
+          this.memoryCompressionService.getCompressionStats(ctx.user.id)
+        ),
 
-           // Get memory trends
-           getTrends: this.trpc.protectedProcedure
-             .input(z.object({ days: z.number().min(1).max(90).default(30) }))
-             .query(({ ctx, input }) => 
-               this.memoryAnalyticsService.getMemoryTrends(ctx.user.id, input.days)
-             ),
+      // Get memory trends
+      getTrends: this.trpc.protectedProcedure
+        .input(z.object({ days: z.number().min(1).max(90).default(30) }))
+        .query(({ ctx, input }) => 
+          this.memoryAnalyticsService.getMemoryTrends(ctx.user.id, input.days)
+        ),
 
-           // Optimize memory settings
-           optimizeSettings: this.trpc.protectedProcedure
-             .query(({ ctx }) => 
-               this.memoryAnalyticsService.optimizeMemorySettings(ctx.user.id)
-             ),
+      // Optimize memory settings
+      optimizeSettings: this.trpc.protectedProcedure
+        .query(({ ctx }) => 
+          this.memoryAnalyticsService.optimizeMemorySettings(ctx.user.id)
+        ),
 
-           // Get context statistics
-           getContextStats: this.trpc.protectedProcedure
-             .query(({ ctx }) => 
-               this.smartContextService.getContextStats(ctx.user.id)
-             ),
-         }),
+      // Get context statistics
+      getContextStats: this.trpc.protectedProcedure
+        .query(({ ctx }) => 
+          this.smartContextService.getContextStats(ctx.user.id)
+        ),
+    }),
   });
 
 }
