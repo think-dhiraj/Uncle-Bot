@@ -3,9 +3,7 @@ import { PersonalityMemoryService } from './personality-memory.service';
 import { PersonalityVectorService } from './personality-vector.service';
 import { PersonalityInteractionService } from './personality-interaction.service';
 import { UserPreferencesService } from '../user-preferences/user-preferences.service';
-// import { PersonalityMemoryType, PersonalityInteractionType } from 'db';
-import { PersonalityMemoryType } from './personality-memory.service';
-import { PersonalityInteractionType } from './personality-interaction.service';
+import { PersonalityMemoryType, PersonalityInteractionType } from 'db';
 
 export interface PersonalityContext {
   userId: string;
